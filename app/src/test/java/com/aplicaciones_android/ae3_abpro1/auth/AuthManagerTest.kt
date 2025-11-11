@@ -32,19 +32,25 @@ class AuthManagerTest {
 
     @Test
     // Caso: delegación al repositorio con éxito
-    // Verifica que AuthManager llama al servicio (mockeado) y retorna Success
+    // Verifica que AuthManager llama al servicio (mockeado) y retorna Success con token
     fun `signIn delegates to repository and returns Success`() {
-        whenever(service.authenticate("user", "pass")).thenReturn(true)
+        whenever(service.fetchToken("user", "pass")).thenReturn("ey.token.mock")
         val result = manager.signIn("user", "pass")
-        assertTrue(result is AuthResult.Success)
+        assertTrue("Se esperaba AuthResult.Success pero se obtuvo: $result", result is AuthResult.Success)
+        val token = (result as AuthResult.Success).token
+        assertEquals("ey.token.mock", token)
     }
 
     @Test
     // Caso: el servicio lanza excepción -> se espera NetworkError
     // Simula un fallo de red en la dependencia externa.
     fun `signIn handles network error`() {
-        whenever(service.authenticate("network", "x")).then { throw Exception("net") }
+        whenever(service.fetchToken("network", "x")).then { throw Exception("net") }
         val result = manager.signIn("network", "x")
         assertTrue(result is AuthResult.NetworkError)
     }
+
+    // Nota: Falta test de instrumentación (Espresso) para la UI de LoginActivity.
+    // Debe cubrir: introducir credenciales en los EditText, pulsar botón y
+    // comprobar navegación/UX y que se almacene el token.
 }

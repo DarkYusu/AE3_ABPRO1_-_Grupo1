@@ -1,13 +1,10 @@
 package com.aplicaciones_android.ae3_abpro1
 
 import org.junit.Test
-
 import org.junit.Assert.*
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * Test unitario de ejemplo (se ejecuta en la JVM local)
  */
 class ExampleUnitTest {
     @Test

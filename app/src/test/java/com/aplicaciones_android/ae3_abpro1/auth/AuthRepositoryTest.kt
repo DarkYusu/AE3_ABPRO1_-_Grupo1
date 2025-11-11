@@ -7,45 +7,39 @@ import org.mockito.kotlin.whenever
 import org.mockito.kotlin.mock
 
 /**
- * Tests unitarios para AuthRepository
- * -----------------------------------
- * Tipo de test: Unit test (JUnit) usando Mockito-Kotlin para simular dependencias.
- * Objetivo: Verificar la lógica de `AuthRepository.login(...)` en los diferentes
- * escenarios que debe manejar:
- *  - Autenticación exitosa (Success)
- *  - Credenciales inválidas (InvalidCredentials)
- *  - Error de red/excepción (NetworkError)
+ * Tests unitarios para `AuthRepository`.
  *
- * Requisitos cubiertos:
- *  - Probar el repositorio de autenticación para simular respuestas de éxito y error.
+ * Cobertura:
+ *  - Cuando el servicio devuelve un token -> Success con token
+ *  - Cuando el servicio devuelve null -> InvalidCredentials
+ *  - Cuando el servicio lanza excepción -> NetworkError
  */
 class AuthRepositoryTest {
     private val service: AuthService = mock()
     private val repository = AuthRepository(service)
 
     @Test
-    // Caso: servicio devuelve true -> se espera AuthResult.Success
-    // Tipo de test: unitario
-    fun `login returns Success when service authenticates`() {
-        whenever(service.authenticate("user", "pass")).thenReturn(true)
+    // Caso: servicio devuelve token -> se espera Success con el token proporcionado
+    fun `login returns Success when service returns token`() {
+        whenever(service.fetchToken("user", "pass")).thenReturn("ey.token.mock")
         val result = repository.login("user", "pass")
         assertTrue(result is AuthResult.Success)
+        val token = (result as AuthResult.Success).token
+        assertEquals("ey.token.mock", token)
     }
 
     @Test
-    // Caso: servicio devuelve false -> se espera AuthResult.InvalidCredentials
-    // Verifica que el repositorio mapea correctamente la respuesta de la API/servicio.
-    fun `login returns InvalidCredentials when service returns false`() {
-        whenever(service.authenticate("user", "wrong")).thenReturn(false)
+    // Caso: servicio devuelve null -> se espera InvalidCredentials
+    fun `login returns InvalidCredentials when service returns null`() {
+        whenever(service.fetchToken("user", "wrong")).thenReturn(null)
         val result = repository.login("user", "wrong")
         assertTrue(result is AuthResult.InvalidCredentials)
     }
 
     @Test
-    // Caso: servicio lanza excepción -> se espera AuthResult.NetworkError
-    // Se usa `doThrow` para simular una excepción de red en la dependencia externa.
+    // Caso: servicio lanza excepción -> se espera NetworkError
     fun `login returns NetworkError when service throws`() {
-        doThrow(Exception("net")).whenever(service).authenticate("network", "x")
+        doThrow(Exception("net")).whenever(service).fetchToken("network", "x")
         val result = repository.login("network", "x")
         assertTrue(result is AuthResult.NetworkError)
     }

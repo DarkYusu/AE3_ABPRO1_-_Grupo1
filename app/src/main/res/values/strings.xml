@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">AE3_ABPRO1</string>
+
+    <!-- Mensajes de UI para el flujo de autenticación -->
+    <string name="login_success">Inicio de sesión exitoso</string>
+    <string name="invalid_credentials">Credenciales inválidas</string>
+    <string name="network_error">Error de red: %1$s</string>
 </resources>

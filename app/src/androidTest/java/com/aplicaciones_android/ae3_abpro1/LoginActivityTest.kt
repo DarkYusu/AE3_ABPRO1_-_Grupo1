@@ -12,48 +12,46 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Tests de instrumentación (UI) para el flujo de login
- * ---------------------------------------------------
- * Tipo de test: Instrumented tests usando Espresso.
- * Objetivo: Verificar que la `MainActivity` y su UI interactúan correctamente
- * con los elementos (EditText, Button, TextView) para los siguientes escenarios:
- *  - Inicio de sesión exitoso (mensaje "Inicio de sesión exitoso").
- *  - Credenciales inválidas (mensaje que contiene "Credenciales").
- *  - Error de red (mensaje que contiene "Error de red").
+ * Tests instrumentados (Espresso) para la pantalla de login.
  *
- * Ubicación: `app/src/androidTest/java/.../LoginActivityTest.kt`
+ * Estos tests comprueban los flujos principales de la UI:
+ *  - Inicio de sesión exitoso muestra el mensaje correcto.
+ *  - Credenciales inválidas muestran mensaje de error.
+ *  - Error de red simulado muestra mensaje de red.
  */
 @RunWith(AndroidJUnit4::class)
 class LoginActivityTest {
+
+    // Regla para lanzar la actividad bajo prueba antes de cada test
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Test
-    // Escenario: Login exitoso (UI)
-    // Interacción: rellenar username/password y pulsar botón
-    // Verificación: TextView `message` muestra "Inicio de sesión exitoso"
+    // Test: login exitoso con credenciales válidas.
+    // Paso: rellenar username/password y pulsar el botón de login.
+    // Verificación: el TextView con id `message` muestra exactamente "Inicio de sesión exitoso".
     fun successfulLoginShowsSuccessMessage() {
-        // user/pass are accepted by the demo AuthService in MainActivity
-        onView(withId(R.id.username)).perform(replaceText("user"), closeSoftKeyboard())
-        onView(withId(R.id.password)).perform(replaceText("pass"), closeSoftKeyboard())
+        onView(withId(R.id.username)).perform(replaceText("sebastian"), closeSoftKeyboard())
+        onView(withId(R.id.password)).perform(replaceText("123456"), closeSoftKeyboard())
         onView(withId(R.id.login_button)).perform(click())
         onView(withId(R.id.message)).check(matches(withText("Inicio de sesión exitoso")))
     }
 
     @Test
-    // Escenario: Credenciales inválidas (UI)
-    // Verificación: el TextView `message` contiene la palabra "Credenciales"
+    // Test: credenciales inválidas.
+    // Paso: usar un usuario existente con contraseña incorrecta.
+    // Verificación: el TextView `message` contiene la palabra "Credenciales".
     fun invalidCredentialsShowError() {
-        onView(withId(R.id.username)).perform(replaceText("user"), closeSoftKeyboard())
+        onView(withId(R.id.username)).perform(replaceText("sebastian"), closeSoftKeyboard())
         onView(withId(R.id.password)).perform(replaceText("wrong"), closeSoftKeyboard())
         onView(withId(R.id.login_button)).perform(click())
-        // el mensaje viene desde AuthRepository: "Credenciales inválidas"
         onView(withId(R.id.message)).check(matches(withText(containsString("Credenciales"))))
     }
 
     @Test
-    // Escenario: Error de red simulado (UI)
-    // Verificación: el TextView `message` contiene "Error de red"
+    // Test: simulación de error de red.
+    // Paso: usar el nombre de usuario reservado "network" para provocar la excepción simulada.
+    // Verificación: el TextView `message` contiene "Error de red".
     fun networkErrorShowsNetworkMessage() {
         onView(withId(R.id.username)).perform(replaceText("network"), closeSoftKeyboard())
         onView(withId(R.id.password)).perform(replaceText("x"), closeSoftKeyboard())
